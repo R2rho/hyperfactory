@@ -1,4 +1,3 @@
-export { HalftoneBackground } from './HalftoneBackground'
 export { GlassCard } from './GlassCard'
 export { WorkflowDisplay } from './WorkflowDisplay'
 export { FeatureCard } from './FeatureCard'

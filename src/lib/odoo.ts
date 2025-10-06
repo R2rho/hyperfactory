@@ -330,8 +330,6 @@ export class OdooService {
         id: lead.id,
         name: lead.name,
         email_from: lead.email_from,
-        partner_id: lead.partner_id,
-        hasValidEmail: !!lead.email_from && lead.email_from.includes('@')
       })
 
       if (!lead.email_from || !lead.email_from.includes('@')) {

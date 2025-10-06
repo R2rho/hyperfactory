@@ -1,0 +1,83 @@
+HYPERFACTORY LAUNCHKC APPLICATION
+==================================
+
+AI-Powered Smart Factory Platform by Vertec
+
+COMPANY OVERVIEW
+---------------
+Vertec LLC - Hyperfactory Division
+AI-powered smart factory platform for SMB manufacturers
+Founded: [Year]
+Location: Kansas City, MO
+
+FUNDING REQUEST
+--------------
+Amount: [Amount]
+Use of Funds:
+- Demo Floor: Working Hyperfactory floor for tours + real equipment integration tests
+- Team: Convert part-time engineers to full-time to accelerate delivery  
+- Playbooks: Repeatable deployments and training to reduce time-to-value
+
+PROBLEM STATEMENT
+----------------
+SMB manufacturers face:
+- Costly, complex, consultant-heavy modernization tools
+- Limited real-time visibility into operations
+- Paper and spreadsheet-based processes
+- Need for growth while reducing lead times and outages
+
+SOLUTION
+--------
+Hyperfactory provides:
+- Phased modernization approach
+- AI-powered orchestration and unified namespace
+- Vendor-neutral backbone
+- Human-in-the-loop implementation
+- Measurable ROI within 90 days
+
+MARKET OPPORTUNITY
+-----------------
+Target Market: SMB manufacturers (10-250 employees, $5M-$150M revenue)
+Beachhead: Kansas City & Midwest supplier clusters
+Expansion: National scale through proven playbooks
+
+TRACTION & VALIDATION
+--------------------
+Current Deployments:
+- HIX Corporation (Pittsburg, KS): ~50% output increase, ~75% backlog reduction
+- Raven Space Systems (Kansas City, MO): Efficiency gains and data-driven decisions
+- Foothold Labs: Early adopter partnership
+
+COMPETITIVE ADVANTAGE
+--------------------
+vs. Enterprise Solutions (SAP, Oracle, Siemens): Faster, more affordable
+vs. Point Solutions: Unified data backbone, better integration
+Key Differentiators: Customer-owned data, open standards, phased approach
+
+BUSINESS MODEL
+--------------
+SaaS platform with phased onboarding
+Revenue Model: Subscription-based with implementation services
+Growth Strategy: Pilots → full deployment → multi-site expansion
+
+TEAM
+----
+[Team member details]
+[Relevant experience]
+[Advisory board]
+
+FINANCIAL PROJECTIONS
+---------------------
+[Revenue projections]
+[Customer acquisition metrics]
+[Unit economics]
+
+LAUNCHKC IMPACT
+---------------
+Kansas City Focus:
+- Strengthen local manufacturing ecosystem
+- Create high-value engineering jobs
+- Establish KC as smart manufacturing hub
+- Partner with local MEPs and universities
+
+This is a placeholder file. Replace with actual Word document.

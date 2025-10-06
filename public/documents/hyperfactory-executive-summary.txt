@@ -1,0 +1,57 @@
+HYPERFACTORY EXECUTIVE SUMMARY
+===============================
+
+AI-Powered Smart Factory Platform by Vertec
+
+PROBLEM & OPPORTUNITY
+--------------------
+- SMB manufacturers struggle with costly, complex, consultant-heavy tools
+- Limited real-time visibility and paper-based processes
+- Need for growth, shorter lead times, and fewer outages
+- Entrepreneur-owners acquiring plants need fast, low-risk modernization
+
+SOLUTION - HYPERFACTORY
+-----------------------
+A practical, phased path to a smart factory:
+- Human-in-the-loop approach
+- Vendor-neutral backbone
+- Measurable outcomes
+- AI-powered orchestration and unified namespace
+
+CUSTOMER VALUE
+--------------
+Growth: Higher throughput, better quoting, faster time-to-first-part
+Lead Time: Live scheduling, material visibility, fewer expedites  
+Uptime: Predictive alerts, guided maintenance, higher OEE
+
+VALIDATION & TRACTION
+--------------------
+- Early deployments at HIX Corporation (Pittsburg, KS) and Raven Space Systems (Kansas City, MO)
+- At HIX: ~50% output increase, ~75% backlog reduction
+- Added Foothold Labs as early adopter
+- Growing pipeline of interested manufacturers
+
+MARKET & ICP
+-----------
+Beachhead: Kansas City & Midwest supplier clusters
+Ideal Customer: 10-250 employees, $5M-$150M revenue
+Target: Entrepreneur-owners acquiring plants, CEOs/COOs, plant leaders
+
+BUSINESS MODEL
+--------------
+SaaS platform + phased onboarding and targeted integrations
+Pilots expand 12-24 months across lines/sites → durable ARR
+
+COMPETITION & DIFFERENTIATION
+-----------------------------
+vs Big-suite ERP/MES/IIoT: Faster, more affordable for SMBs
+vs Patchwork tools: Unified backbone, better data integration
+Advantage: Phased, AI-guided, vendor-neutral, customer-owned data
+
+GO-TO-MARKET
+------------
+Start in KC: pilots → case studies, plant tours, workshops
+Partner with MEPs, chambers, LaunchKC, universities
+Entrepreneur-acquirer motion through lender/broker/attorney channels
+
+This is a placeholder file. Replace with actual Word document.

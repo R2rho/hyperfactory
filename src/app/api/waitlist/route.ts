@@ -34,6 +34,9 @@ function getHeaders(request: NextRequest): Record<string, string> {
 }
 
 export async function POST(request: NextRequest) {
+  const requestId = Math.random().toString(36).substring(7)
+  console.log(`[WAITLIST-${requestId}] Starting waitlist submission at ${new Date().toISOString()}`)
+
   try {
     // Get client information
     const clientIP = getClientIP(request)
@@ -139,6 +142,7 @@ export async function POST(request: NextRequest) {
     RateLimiter.recordAttempt(clientIP)
 
     // Initialize Odoo service
+    console.log(`[WAITLIST-${requestId}] Initializing Odoo service for ${body.email}`)
     const odooService = new OdooService()
 
     // Check if HyperFactory lead already exists in Odoo
@@ -168,16 +172,44 @@ export async function POST(request: NextRequest) {
     const partnerId = await odooService.findOrCreatePartner(body)
 
     // Create lead
+    console.log(`[WAITLIST] Creating lead for ${body.email}`)
     const leadId = await odooService.createLead(body, partnerId, tagId, teamId)
+    console.log(`[WAITLIST] Lead created with ID: ${leadId}`)
 
     // Send welcome email (don't wait for it to complete)
-    odooService.sendWelcomeEmail(leadId).catch(error => {
-      console.error('Failed to send welcome email:', error)
+    console.log(`[WAITLIST] Triggering welcome email for lead ${leadId}`)
+    const emailPromise = odooService.sendWelcomeEmail(leadId).catch(error => {
+      console.error('[WAITLIST] Failed to send welcome email:', error)
+      console.error('[WAITLIST] Email error details:', {
+        leadId,
+        email: body.email,
+        name: body.name,
+        error: error instanceof Error ? error.message : String(error)
+      })
       // Log but don't fail the request
+    })
+
+    // Log the email promise status
+    console.log(`[WAITLIST] Email promise created for lead ${leadId}`)
+
+    // Optional: Add a timeout to see if email completes quickly
+    Promise.race([
+      emailPromise,
+      new Promise(resolve => setTimeout(() => resolve('TIMEOUT'), 5000))
+    ]).then(result => {
+      if (result === 'TIMEOUT') {
+        console.log(`[WAITLIST] Email sending for lead ${leadId} is taking longer than 5 seconds`)
+      } else {
+        console.log(`[WAITLIST] Email sending for lead ${leadId} completed within 5 seconds`)
+      }
+    }).catch(error => {
+      console.error(`[WAITLIST] Email promise race error for lead ${leadId}:`, error)
     })
 
     // Record successful email submission
     RateLimiter.recordEmailSubmission(body.email)
+
+    console.log(`[WAITLIST-${requestId}] Successfully completed waitlist submission for ${body.email}, leadId: ${leadId}`)
 
     return NextResponse.json(
       {
@@ -189,7 +221,12 @@ export async function POST(request: NextRequest) {
     )
 
   } catch (error) {
-    console.error('Waitlist submission error:', error)
+    console.error(`[WAITLIST-${requestId}] Waitlist submission error:`, error)
+    console.error(`[WAITLIST-${requestId}] Error details:`, {
+      name: error instanceof Error ? error.name : 'Unknown',
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined
+    })
     
     // Return generic error to avoid exposing internal details
     return NextResponse.json(

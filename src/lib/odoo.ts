@@ -14,7 +14,11 @@ let odooClient: OdooClient | null = null
 
 export function getOdooClient(): OdooClient {
   if (!odooClient) {
+    console.log(`[ODOO-CLIENT] Creating new Odoo client with config:`, {
+      url: odooConfig.url,
+    })
     odooClient = new OdooClient(odooConfig)
+    console.log(`[ODOO-CLIENT] Odoo client created successfully`)
   }
   return odooClient
 }
@@ -62,7 +66,30 @@ export class OdooService {
   private client: OdooClient
 
   constructor() {
+    console.log(`[ODOO-SERVICE] Initializing OdooService`)
     this.client = getOdooClient()
+    console.log(`[ODOO-SERVICE] OdooService initialized with client`)
+  }
+
+  // Wrapper for client.execute with enhanced logging
+  private async executeWithLogging(model: string, method: string, args: any[], kwargs: any = {}) {
+    const callId = Math.random().toString(36).substring(7)
+    console.log(`[ODOO-EXECUTE-${callId}] Starting: ${model}.${method}`)
+    console.log(`[ODOO-EXECUTE-${callId}] Args:`, args)
+    console.log(`[ODOO-EXECUTE-${callId}] Kwargs:`, kwargs)
+
+    const startTime = Date.now()
+    try {
+      const result = await this.client.execute(model, method, args, kwargs)
+      const duration = Date.now() - startTime
+      console.log(`[ODOO-EXECUTE-${callId}] SUCCESS in ${duration}ms`)
+      console.log(`[ODOO-EXECUTE-${callId}] Result:`, result)
+      return result
+    } catch (error) {
+      const duration = Date.now() - startTime
+      console.error(`[ODOO-EXECUTE-${callId}] ERROR after ${duration}ms:`, error)
+      throw error
+    }
   }
 
   // Find or create HyperFactory tag
@@ -271,14 +298,69 @@ export class OdooService {
 
   // Send welcome email using Odoo email template
   async sendWelcomeEmail(leadId: number): Promise<void> {
-    try {
-      // First, find or create the email template
-      const templateId = await this.findOrCreateEmailTemplate()
+    const startTime = Date.now()
+    console.log(`[EMAIL] Starting sendWelcomeEmail for lead ${leadId} at ${new Date().toISOString()}`)
 
-      console.log(`Sending welcome email for lead ${leadId} using template ${templateId}`)
+    try {
+      // Environment check
+      console.log(`[EMAIL] Environment: ${process.env.NODE_ENV}`)
+      console.log(`[EMAIL] Vercel deployment: ${process.env.VERCEL ? 'YES' : 'NO'}`)
+      console.log(`[EMAIL] Odoo URL: ${process.env.ODOO_DB_URL?.substring(0, 20)}...`)
+
+      // First, find or create the email template
+      console.log(`[EMAIL] Finding/creating email template...`)
+      const templateId = await this.findOrCreateEmailTemplate()
+      console.log(`[EMAIL] Template ID: ${templateId}`)
+
+      // Get lead details for debugging
+      console.log(`[EMAIL] Fetching lead details for ID ${leadId}...`)
+      const leadDetails = await this.client.searchRead<OdooLead>(
+        'crm.lead',
+        [['id', '=', leadId]],
+        { fields: ['id', 'name', 'email_from', 'partner_id'], limit: 1 }
+      )
+
+      if (leadDetails.length === 0) {
+        console.error(`[EMAIL] ERROR: Lead ${leadId} not found for email sending`)
+        return
+      }
+
+      const lead = leadDetails[0]
+      console.log(`[EMAIL] Lead details:`, {
+        id: lead.id,
+        name: lead.name,
+        email_from: lead.email_from,
+        partner_id: lead.partner_id,
+        hasValidEmail: !!lead.email_from && lead.email_from.includes('@')
+      })
+
+      if (!lead.email_from || !lead.email_from.includes('@')) {
+        console.error(`[EMAIL] ERROR: Invalid email address for lead ${leadId}: ${lead.email_from}`)
+        return
+      }
+
+      // Check template details before sending
+      console.log(`[EMAIL] Verifying template configuration...`)
+      const templateDetails = await this.client.searchRead<any>(
+        'mail.template',
+        [['id', '=', templateId]],
+        {
+          fields: ['id', 'name', 'subject', 'email_from', 'use_default_to', 'email_to', 'partner_to', 'model_id'],
+          limit: 1
+        }
+      )
+
+      if (templateDetails.length > 0) {
+        console.log(`[EMAIL] Template configuration:`, templateDetails[0])
+      } else {
+        console.error(`[EMAIL] ERROR: Template ${templateId} not found`)
+        return
+      }
 
       // Send email using the template with default recipients
-      const result = await this.client.execute(
+      console.log(`[EMAIL] Executing send_mail with templateId=${templateId}, leadId=${leadId}`)
+
+      const result = await this.executeWithLogging(
         'mail.template',
         'send_mail',
         [templateId, leadId],
@@ -288,9 +370,39 @@ export class OdooService {
         }
       )
 
-      console.log('Email send result:', result)
+      console.log(`[EMAIL] send_mail result:`, result)
+      console.log(`[EMAIL] Result type: ${typeof result}, truthy: ${!!result}`)
+
+      // Additional verification - check if email was actually queued/sent
+      if (result) {
+        console.log(`[EMAIL] SUCCESS: Email queued/sent for lead ${leadId} to ${lead.email_from}`)
+
+        // Wait a moment and then verify the email was created
+        setTimeout(async () => {
+          try {
+            const verification = await this.verifyEmailSent(leadId)
+            console.log(`[EMAIL] Post-send verification:`, verification)
+          } catch (verifyError) {
+            console.error(`[EMAIL] Error in post-send verification:`, verifyError)
+          }
+        }, 1000)
+
+      } else {
+        console.warn(`[EMAIL] WARNING: send_mail returned falsy result for lead ${leadId}`)
+        console.warn(`[EMAIL] This might indicate the email was not queued properly`)
+      }
+
+      const totalDuration = Date.now() - startTime
+      console.log(`[EMAIL] sendWelcomeEmail completed in ${totalDuration}ms`)
+
     } catch (error) {
-      console.error('Error sending welcome email:', error)
+      const totalDuration = Date.now() - startTime
+      console.error(`[EMAIL] ERROR in sendWelcomeEmail after ${totalDuration}ms:`, error)
+      console.error(`[EMAIL] Error details:`, {
+        name: error instanceof Error ? error.name : 'Unknown',
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
+      })
       // Don't throw error here as lead creation should succeed even if email fails
     }
   }
@@ -299,8 +411,11 @@ export class OdooService {
 
   // Find or create email template
   async findOrCreateEmailTemplate(): Promise<number> {
+    console.log(`[EMAIL-TEMPLATE] Starting findOrCreateEmailTemplate`)
+
     try {
       // Search for existing template
+      console.log(`[EMAIL-TEMPLATE] Searching for existing template 'HyperFactory Waitlist Welcome'`)
       const existingTemplates = await this.client.searchRead<{id: number, name: string}>(
         'mail.template',
         [['name', '=', 'HyperFactory Waitlist Welcome']],
@@ -308,24 +423,54 @@ export class OdooService {
       )
 
       if (existingTemplates.length > 0) {
+        console.log(`[EMAIL-TEMPLATE] Found existing template with ID: ${existingTemplates[0].id}`)
         return existingTemplates[0].id
       }
 
+      console.log(`[EMAIL-TEMPLATE] No existing template found, creating new one`)
+
+      // Get model ID first
+      console.log(`[EMAIL-TEMPLATE] Getting model ID for 'crm.lead'`)
+      const modelId = await this.getModelId('crm.lead')
+      console.log(`[EMAIL-TEMPLATE] Model ID for crm.lead: ${modelId}`)
+
       // Create new email template
-      const templateId = await this.client.create('mail.template', {
+      const templateData = {
         name: 'HyperFactory Waitlist Welcome',
-        model_id: await this.getModelId('crm.lead'),
+        model_id: modelId,
         subject: 'Welcome to the HyperFactory Waitlist! 🚀',
         body_html: this.getEmailTemplateHTML(),
         email_from: 'HyperFactory <waitlist@vertec.com>',
-        use_default_to: true, // This is the key! Uses default recipients logic
+        use_default_to: true, // Uses default recipients logic
         auto_delete: false,
-        // Don't set email_to or partner_to - let Odoo handle it automatically
+        // Explicitly set email_to to use the lead's email_from field
+        email_to: '${object.email_from}',
+        // Also set partner_to to use the partner if available
+        partner_to: '${object.partner_id.id if object.partner_id else ""}',
+      }
+
+      console.log(`[EMAIL-TEMPLATE] Creating template with data:`, {
+        name: templateData.name,
+        model_id: templateData.model_id,
+        subject: templateData.subject,
+        email_from: templateData.email_from,
+        use_default_to: templateData.use_default_to,
+        email_to: templateData.email_to,
+        partner_to: templateData.partner_to,
+        body_html_length: templateData.body_html.length
       })
+
+      const templateId = await this.client.create('mail.template', templateData)
+      console.log(`[EMAIL-TEMPLATE] Successfully created template with ID: ${templateId}`)
 
       return templateId
     } catch (error) {
-      console.error('Error finding/creating email template:', error)
+      console.error('[EMAIL-TEMPLATE] Error finding/creating email template:', error)
+      console.error('[EMAIL-TEMPLATE] Error details:', {
+        name: error instanceof Error ? error.name : 'Unknown',
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
+      })
       throw new Error('Failed to create email template')
     }
   }
@@ -421,5 +566,130 @@ export class OdooService {
 </html>`
 
     return htmlContent.trim()
+  }
+
+  // Verify if email was sent for a lead
+  async verifyEmailSent(leadId: number): Promise<{sent: boolean, details?: any}> {
+    try {
+      // Check for mail.mail records related to this lead
+      const mailRecords = await this.client.searchRead<any>(
+        'mail.mail',
+        [
+          ['res_id', '=', leadId],
+          ['model', '=', 'crm.lead']
+        ],
+        {
+          fields: ['id', 'subject', 'email_to', 'state', 'failure_reason', 'date'],
+          order: 'date desc',
+          limit: 5
+        }
+      )
+
+      if (mailRecords.length > 0) {
+        console.log(`Found ${mailRecords.length} email records for lead ${leadId}:`, mailRecords)
+        return {
+          sent: true,
+          details: mailRecords
+        }
+      } else {
+        console.log(`No email records found for lead ${leadId}`)
+        return { sent: false }
+      }
+    } catch (error) {
+      console.error('Error verifying email sent:', error)
+      return { sent: false }
+    }
+  }
+
+  // Test email template by sending to a specific email
+  async testEmailTemplate(testEmail: string): Promise<boolean> {
+    try {
+      // Create a temporary test lead
+      const testLead = {
+        name: 'Test Email Template',
+        email_from: testEmail,
+        type: 'lead',
+        description: 'Temporary lead for testing email template - can be deleted'
+      }
+
+      const testLeadId = await this.client.create('crm.lead', testLead)
+      console.log(`Created test lead ${testLeadId} for email testing`)
+
+      // Send email to test lead
+      await this.sendWelcomeEmail(testLeadId)
+
+      // Wait a moment then verify
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      const verification = await this.verifyEmailSent(testLeadId)
+
+      // Clean up test lead
+      await this.client.unlink('crm.lead', [testLeadId])
+      console.log(`Cleaned up test lead ${testLeadId}`)
+
+      return verification.sent
+    } catch (error) {
+      console.error('Error testing email template:', error)
+      return false
+    }
+  }
+
+  // Check Odoo email configuration
+  async checkEmailConfiguration(): Promise<any> {
+    console.log(`[EMAIL-CONFIG] Checking Odoo email configuration`)
+
+    try {
+      // Check mail servers
+      const mailServers = await this.client.searchRead<any>(
+        'ir.mail_server',
+        [],
+        {
+          fields: ['id', 'name', 'smtp_host', 'smtp_port', 'smtp_user', 'smtp_authentication', 'smtp_encryption'],
+          limit: 10
+        }
+      )
+
+      console.log(`[EMAIL-CONFIG] Found ${mailServers.length} mail servers:`, mailServers)
+
+      // Check system parameters related to email
+      const emailParams = await this.client.searchRead<any>(
+        'ir.config_parameter',
+        [
+          '|', '|', '|',
+          ['key', 'like', 'mail%'],
+          ['key', 'like', 'email%'],
+          ['key', 'like', 'smtp%']
+        ],
+        {
+          fields: ['key', 'value'],
+          limit: 20
+        }
+      )
+
+      console.log(`[EMAIL-CONFIG] Email-related system parameters:`, emailParams)
+
+      // Check if there are any failed emails in the queue
+      const failedEmails = await this.client.searchRead<any>(
+        'mail.mail',
+        [['state', '=', 'exception']],
+        {
+          fields: ['id', 'subject', 'email_to', 'failure_reason', 'date'],
+          limit: 10,
+          order: 'date desc'
+        }
+      )
+
+      console.log(`[EMAIL-CONFIG] Recent failed emails:`, failedEmails)
+
+      return {
+        mailServers,
+        emailParams,
+        failedEmails,
+        hasMailServer: mailServers.length > 0,
+        hasFailedEmails: failedEmails.length > 0
+      }
+    } catch (error) {
+      console.error('[EMAIL-CONFIG] Error checking email configuration:', error)
+      return { error: error instanceof Error ? error.message : String(error) }
+    }
   }
 }

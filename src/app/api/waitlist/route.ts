@@ -176,35 +176,30 @@ export async function POST(request: NextRequest) {
     const leadId = await odooService.createLead(body, partnerId, tagId, teamId)
     console.log(`[WAITLIST] Lead created with ID: ${leadId}`)
 
-    // Send welcome email (don't wait for it to complete)
-    console.log(`[WAITLIST] Triggering welcome email for lead ${leadId}`)
-    const emailPromise = odooService.sendWelcomeEmail(leadId).catch(error => {
-      console.error('[WAITLIST] Failed to send welcome email:', error)
-      console.error('[WAITLIST] Email error details:', {
+    // Send welcome email - let's wait for it to complete or timeout
+    console.log(`[WAITLIST-${requestId}] Triggering welcome email for lead ${leadId}`)
+
+    try {
+      // Wait for email sending with a timeout
+      const emailResult = await Promise.race([
+        odooService.sendWelcomeEmail(leadId),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Email timeout after 10 seconds')), 10000)
+        )
+      ])
+
+      console.log(`[WAITLIST-${requestId}] Email sending completed successfully for lead ${leadId}`)
+    } catch (emailError) {
+      console.error(`[WAITLIST-${requestId}] Email sending failed or timed out:`, emailError)
+      console.error(`[WAITLIST-${requestId}] Email error details:`, {
         leadId,
         email: body.email,
         name: body.name,
-        error: error instanceof Error ? error.message : String(error)
+        error: emailError instanceof Error ? emailError.message : String(emailError),
+        stack: emailError instanceof Error ? emailError.stack : undefined
       })
-      // Log but don't fail the request
-    })
-
-    // Log the email promise status
-    console.log(`[WAITLIST] Email promise created for lead ${leadId}`)
-
-    // Optional: Add a timeout to see if email completes quickly
-    Promise.race([
-      emailPromise,
-      new Promise(resolve => setTimeout(() => resolve('TIMEOUT'), 5000))
-    ]).then(result => {
-      if (result === 'TIMEOUT') {
-        console.log(`[WAITLIST] Email sending for lead ${leadId} is taking longer than 5 seconds`)
-      } else {
-        console.log(`[WAITLIST] Email sending for lead ${leadId} completed within 5 seconds`)
-      }
-    }).catch(error => {
-      console.error(`[WAITLIST] Email promise race error for lead ${leadId}:`, error)
-    })
+      // Continue with success response even if email fails
+    }
 
     // Record successful email submission
     RateLimiter.recordEmailSubmission(body.email)

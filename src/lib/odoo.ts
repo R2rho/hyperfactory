@@ -71,16 +71,22 @@ export class OdooService {
     console.log(`[ODOO-SERVICE] OdooService initialized with client`)
   }
 
-  // Wrapper for client.execute with enhanced logging
-  private async executeWithLogging(model: string, method: string, args: any[], kwargs: any = {}) {
+  // Wrapper for client.execute with enhanced logging and timeout
+  private async executeWithLogging(model: string, method: string, args: any[], kwargs: any = {}, timeoutMs: number = 15000) {
     const callId = Math.random().toString(36).substring(7)
-    console.log(`[ODOO-EXECUTE-${callId}] Starting: ${model}.${method}`)
+    console.log(`[ODOO-EXECUTE-${callId}] Starting: ${model}.${method} (timeout: ${timeoutMs}ms)`)
     console.log(`[ODOO-EXECUTE-${callId}] Args:`, args)
     console.log(`[ODOO-EXECUTE-${callId}] Kwargs:`, kwargs)
 
     const startTime = Date.now()
     try {
-      const result = await this.client.execute(model, method, args, kwargs)
+      const result = await Promise.race([
+        this.client.execute(model, method, args, kwargs),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error(`XMLRPC call timeout after ${timeoutMs}ms`)), timeoutMs)
+        )
+      ])
+
       const duration = Date.now() - startTime
       console.log(`[ODOO-EXECUTE-${callId}] SUCCESS in ${duration}ms`)
       console.log(`[ODOO-EXECUTE-${callId}] Result:`, result)
@@ -88,6 +94,10 @@ export class OdooService {
     } catch (error) {
       const duration = Date.now() - startTime
       console.error(`[ODOO-EXECUTE-${callId}] ERROR after ${duration}ms:`, error)
+      console.error(`[ODOO-EXECUTE-${callId}] Error details:`, {
+        name: error instanceof Error ? error.name : 'Unknown',
+        message: error instanceof Error ? error.message : String(error)
+      })
       throw error
     }
   }
@@ -414,11 +424,17 @@ export class OdooService {
     try {
       // Search for existing template
       console.log(`[EMAIL-TEMPLATE] Searching for existing template 'HyperFactory Waitlist Welcome'`)
+      const searchStartTime = Date.now()
+
       const existingTemplates = await this.client.searchRead<{id: number, name: string}>(
         'mail.template',
         [['name', '=', 'HyperFactory Waitlist Welcome']],
         { fields: ['id', 'name'] }
       )
+
+      const searchDuration = Date.now() - searchStartTime
+      console.log(`[EMAIL-TEMPLATE] Template search completed in ${searchDuration}ms`)
+      console.log(`[EMAIL-TEMPLATE] Found ${existingTemplates.length} existing templates`)
 
       if (existingTemplates.length > 0) {
         console.log(`[EMAIL-TEMPLATE] Found existing template with ID: ${existingTemplates[0].id}`)

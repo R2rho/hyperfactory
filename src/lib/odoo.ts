@@ -649,21 +649,28 @@ export class OdooService {
       console.log(`[EMAIL-CONFIG] Found ${mailServers.length} mail servers:`, mailServers)
 
       // Check system parameters related to email
-      const emailParams = await this.client.searchRead<any>(
+      // We'll make separate calls since the OR syntax is causing TypeScript issues
+      const mailParams = await this.client.searchRead<any>(
         'ir.config_parameter',
-        [
-          '|', '|',
-          ['key', 'like', 'mail%'],
-          ['key', 'like', 'email%'],
-          ['key', 'like', 'smtp%']
-        ],
-        {
-          fields: ['key', 'value'],
-          limit: 20
-        }
+        [['key', 'like', 'mail%']],
+        { fields: ['key', 'value'], limit: 10 }
       )
 
-      console.log(`[EMAIL-CONFIG] Email-related system parameters:`, emailParams)
+      const emailParams = await this.client.searchRead<any>(
+        'ir.config_parameter',
+        [['key', 'like', 'email%']],
+        { fields: ['key', 'value'], limit: 10 }
+      )
+
+      const smtpParams = await this.client.searchRead<any>(
+        'ir.config_parameter',
+        [['key', 'like', 'smtp%']],
+        { fields: ['key', 'value'], limit: 10 }
+      )
+
+      const allEmailParams = [...mailParams, ...emailParams, ...smtpParams]
+
+      console.log(`[EMAIL-CONFIG] Email-related system parameters:`, allEmailParams)
 
       // Check if there are any failed emails in the queue
       const failedEmails = await this.client.searchRead<any>(
@@ -680,7 +687,7 @@ export class OdooService {
 
       return {
         mailServers,
-        emailParams,
+        emailParams: allEmailParams,
         failedEmails,
         hasMailServer: mailServers.length > 0,
         hasFailedEmails: failedEmails.length > 0

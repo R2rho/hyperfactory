@@ -198,7 +198,7 @@ export class OdooService {
 
       return results
     } catch (error) {
-      console.error('Error checking multiple HyperPrints leads:', error)
+      console.error('Error checking multiple HyperFactory leads:', error)
       // If there's an error, assume all emails don't exist (safer for re-submission)
       for (const email of emails) {
         results.set(email, false)
@@ -362,7 +362,7 @@ export class OdooService {
         <div style="background-color: #0a0a0a; padding: 40px 30px; text-align: center;">
             <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
                 <span style="font-size: 48px; font-weight: 900; font-style: italic; color: #d1d5db; user-select: none; font-family: 'Roboto', system-ui, sans-serif; transform: skew(-14deg) scaleX(0.92); letter-spacing: -1.44px; text-transform: uppercase;">
-                    HYPERPRINTS
+                    HYPERFACTORY
                 </span>
             </div>
             <h1 style="color: #ffffff; font-size: 28px; font-weight: 900; margin: 0; text-transform: uppercase; letter-spacing: -0.5px;">
@@ -387,17 +387,17 @@ export class OdooService {
                 <ul style="color: #4b5563; font-size: 14px; line-height: 1.6; margin: 0; padding-left: 20px;">
                     <li>We'll keep you updated on our progress</li>
                     <li>You'll get early access when we launch</li>
-                    <li>Exclusive previews of our printing technologies</li>
+                    <li>Exclusive previews of our technologies</li>
                     <li>Special launch pricing and offers</li>
                 </ul>
             </div>
 
             <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin: 30px 0 20px 0;">
-                We're working hard to bring you the ultimate platform for <strong>DTF transfers</strong>, <strong>UV DTF</strong>, and <strong>3D printing services</strong> with lightning-fast turnaround times and industry-leading quality.
+                We're working hard to bring you the ultimate platform for <strong>Smart Manufacturing</strong>.
             </p>
 
             <div style="text-align: center; margin: 40px 0;">
-                <a href="https://hyperprints.com" style="display: inline-block; background-color: #3b82f6; color: #ffffff; text-decoration: none; padding: 15px 30px; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                <a href="https://hyperfactory.com" style="display: inline-block; background-color: #3b82f6; color: #ffffff; text-decoration: none; padding: 15px 30px; border-radius: 8px; font-weight: 600; font-size: 16px;">
                     Visit Our Website
                 </a>
             </div>

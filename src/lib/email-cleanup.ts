@@ -47,7 +47,7 @@ export class EmailCleanupService {
       console.log(`Checking ${emailsToCheck.length} emails against Odoo database...`)
 
       // Check all emails in batch
-      const leadExistenceMap = await this.odooService.checkMultipleHyperPrintsLeads(emailsToCheck)
+      const leadExistenceMap = await this.odooService.checkMultipleHyperFactoryLeads(emailsToCheck)
       
       for (const email of emailsToCheck) {
         try {
@@ -101,7 +101,7 @@ export class EmailCleanupService {
   // Force cleanup for a specific email (useful for testing)
   async forceCleanupEmail(email: string): Promise<boolean> {
     try {
-      const lead = await this.odooService.findExistingHyperPrintsLead(email)
+      const lead = await this.odooService.findExistingHyperFactoryLead(email)
       
       if (!lead) {
         RateLimiter.removeEmailSubmission(email)

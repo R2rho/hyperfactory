@@ -652,7 +652,7 @@ export class OdooService {
       const emailParams = await this.client.searchRead<any>(
         'ir.config_parameter',
         [
-          '|', '|', '|',
+          '|', '|',
           ['key', 'like', 'mail%'],
           ['key', 'like', 'email%'],
           ['key', 'like', 'smtp%']

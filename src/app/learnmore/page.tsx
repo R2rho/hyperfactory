@@ -37,7 +37,7 @@ const Panel = ({ children, style = goldGlass, className = "" }: {
 const FeatureCard = ({ icon: Icon, title, description, highlight = "" }: {
   icon: React.ComponentType<{ className?: string }>;
   title: string;
-  description: string;
+  description: string | React.ReactNode;
   highlight?: string;
 }) => (
   <motion.div
@@ -65,7 +65,7 @@ const FeatureCard = ({ icon: Icon, title, description, highlight = "" }: {
 const StatCard = ({ number, label, description }: {
   number: string;
   label: string;
-  description: string;
+  description: string | React.ReactNode;
 }) => (
   <motion.div
     initial={{ opacity: 0, scale: 0.9 }}
@@ -145,29 +145,96 @@ export default function LearnMorePage() {
               className="text-center mb-16"
             >
               <h2 className="text-4xl font-bold mb-6 text-white">The Manufacturing Challenge</h2>
-              <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+              <p className="text-xl text-gray-400 max-w-4xl mx-auto">
                 American manufacturers face unprecedented challenges that threaten their competitiveness and survival.
+                The good news? Advanced manufacturing technologies that were once only available to Fortune 500 companies are now accessible to manufacturers of all sizes.
               </p>
             </motion.div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
               <StatCard
-                number="60%"
-                label="Productivity Gap"
-                description="SMB manufacturers lag behind industry leaders in operational efficiency¹"
+                number="78%"
+                label="Trade Uncertainty"
+                description={<>Manufacturers cite trade uncertainty as their top business concern<a href="#ref1" className="text-yellow-400 hover:text-yellow-300">¹</a></>}
+              />
+              <StatCard
+                number="68%"
+                label="Rising Costs"
+                description={<>Report increasing raw material costs as a major challenge<a href="#ref1" className="text-yellow-400 hover:text-yellow-300">¹</a></>}
               />
               <StatCard
                 number="$2.1T"
                 label="Lost Revenue"
-                description="Annual losses due to unplanned downtime and inefficiencies²"
+                description={<>Annual losses due to unplanned downtime and inefficiencies<a href="#ref2" className="text-yellow-400 hover:text-yellow-300">²</a></>}
               />
               <StatCard
                 number="73%"
                 label="Skills Shortage"
-                description="Manufacturers report difficulty finding qualified workers³"
+                description={<>Manufacturers report difficulty finding qualified workers<a href="#ref3" className="text-yellow-400 hover:text-yellow-300">³</a></>}
               />
             </div>
+
+            {/* Detailed Challenge Breakdown */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="mb-16"
+            >
+              <div className="grid md:grid-cols-2 gap-8">
+                <FeatureCard
+                  icon={TrendingUp}
+                  title="Operational Pressures Intensifying"
+                  description="Supply chain disruptions, fluctuating demand, and increasing customer expectations for faster delivery are putting unprecedented pressure on manufacturing operations. Traditional reactive approaches leave manufacturers constantly firefighting instead of optimizing for long-term success."
+                />
+                <FeatureCard
+                  icon={Factory}
+                  title="Technology Adoption Gap"
+                  description={<>While 42% of small manufacturers still rely on basic software tools<a href="#ref4" className="text-yellow-400 hover:text-yellow-300">⁴</a>, their larger competitors are investing heavily in digital transformation. This growing technology gap threatens the competitiveness of smaller manufacturers who lack the resources for complex implementations.</>}
+                />
+                <FeatureCard
+                  icon={Target}
+                  title="Workforce and Knowledge Crisis"
+                  description="The manufacturing skills shortage isn't just about finding workers—it's about attracting the next generation. Young professionals want to work with modern technology, not outdated systems. By creating tech-forward manufacturing environments, companies can inspire younger talent while preserving institutional knowledge from experienced workers."
+                />
+                <FeatureCard
+                  icon={Lightbulb}
+                  title="Data Silos Limiting Growth"
+                  description="Critical operational data remains trapped in isolated systems—machines, ERP, quality tools, and spreadsheets that don't communicate. Without real-time visibility, manufacturers make decisions based on outdated information and miss optimization opportunities."
+                />
+              </div>
+            </motion.div>
+
+
+
+            {/* The Cost of Inaction */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              className="text-center"
+            >
+              <Panel style={goldGlass}>
+                <h3 className="text-2xl font-bold mb-6 text-white">What This Means for Your Business</h3>
+                <div className="grid md:grid-cols-3 gap-8">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-yellow-600 mb-2">Lost Revenue</div>
+                    <p className="text-gray-300">Equipment downtime, manual processes, and inefficient workflows directly impact your bottom line. Every hour of unplanned downtime costs money you can't recover.</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-yellow-600 mb-2">Operational Inefficiencies</div>
+                    <p className="text-gray-300">Time spent on manual data entry, searching for information across different systems, and coordinating between departments that should be working together seamlessly.</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-yellow-600 mb-2">Limited Growth</div>
+                    <p className="text-gray-300">Without clear visibility into production data, quality trends, and customer patterns, you can't identify new sales opportunities or optimize your marketing efforts based on actual performance.</p>
+                  </div>
+                </div>
+              </Panel>
+            </motion.div>
           </section>
+
+
 
           {/* Solution Section */}
           <section className="py-16">
@@ -177,109 +244,94 @@ export default function LearnMorePage() {
               transition={{ duration: 0.8, delay: 0.4 }}
               className="text-center mb-16"
             >
-              <h2 className="text-4xl font-bold mb-6 text-white">The HyperFactory Solution</h2>
-              <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-                A comprehensive platform that connects, orchestrates, and optimizes every aspect of your manufacturing operation.
+              <h2 className="text-4xl font-bold mb-6 text-white">HyperFactory</h2>
+              <p className="text-xl text-gray-400 max-w-4xl mx-auto">
+                A unified industrial operations platform that connects your factory floor to your front office, giving you real-time visibility and control over your entire manufacturing operation.
               </p>
+
             </motion.div>
 
             <div className="grid md:grid-cols-2 gap-8 mb-16">
               <FeatureCard
-                icon={Cpu}
-                title="AI-Powered Orchestration"
-                description="Intelligent agents that learn your processes, predict issues, and optimize operations in real-time without human intervention."
-              />
-              <FeatureCard
                 icon={Workflow}
-                title="Unified Namespace"
-                description="Connect all your equipment, systems, and data sources into a single, coherent digital ecosystem that speaks one language."
-              />
-              <FeatureCard
-                icon={Shield}
-                title="Zero-Trust Security"
-                description="Enterprise-grade security that protects your operations while enabling seamless connectivity and data sharing."
+                title="Unified Operations Platform"
+                description="Connect all your systems—ERP, machines, sensors, quality tools—into one cohesive platform. No more data silos or manual data entry between systems. Everything works together to give you complete operational visibility."
               />
               <FeatureCard
                 icon={Factory}
-                title="Digital Twin Technology"
-                description="Create a virtual replica of your factory that enables simulation, optimization, and predictive maintenance."
+                title="Real-Time Factory Intelligence"
+                description="Monitor production, track quality metrics, and manage workflows in real-time. Get instant alerts when issues arise and access the data you need to make informed decisions quickly."
+              />
+              <FeatureCard
+                icon={Shield}
+                title="Secure Integration"
+                description="Enterprise-grade security that protects your operations while enabling seamless connectivity. Your data stays secure and under your control, with no vendor lock-in or proprietary formats."
+              />
+              <FeatureCard
+                icon={Target}
+                title="Digital Transformation"
+                description="Transform routine tasks and workflows while keeping your team in control of critical decisions. Digital tools that learn from your processes and suggest improvements based on real performance data."
               />
             </div>
-          </section>
 
-          {/* Benefits Section */}
-          <section className="py-16">
+            {/* Key Capabilities */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.6 }}
-              className="text-center mb-16"
+              className="mb-16"
             >
-              <h2 className="text-4xl font-bold mb-6 text-white">Measurable Impact</h2>
-              <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-                Our phased approach delivers immediate value while building toward long-term transformation.
-              </p>
+              <Panel style={goldGlass}>
+                <h3 className="text-2xl font-bold mb-8 text-center text-white">What HyperFactory Does for Your Business</h3>
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div>
+                    <h4 className="text-xl font-semibold text-yellow-600 mb-4">Operations Management</h4>
+                    <ul className="space-y-3 text-gray-300">
+                      <li className="flex items-start gap-3">
+                        <div className="w-2 h-2 rounded-full bg-yellow-600 mt-2 flex-shrink-0"></div>
+                        <span>Real-time production monitoring and scheduling</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <div className="w-2 h-2 rounded-full bg-yellow-600 mt-2 flex-shrink-0"></div>
+                        <span>Quality tracking and automated alerts</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <div className="w-2 h-2 rounded-full bg-yellow-600 mt-2 flex-shrink-0"></div>
+                        <span>Inventory management and material tracking</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <div className="w-2 h-2 rounded-full bg-yellow-600 mt-2 flex-shrink-0"></div>
+                        <span>Maintenance scheduling and equipment monitoring</span>
+                      </li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-semibold text-yellow-600 mb-4">Business Integration</h4>
+                    <ul className="space-y-3 text-gray-300">
+                      <li className="flex items-start gap-3">
+                        <div className="w-2 h-2 rounded-full bg-yellow-600 mt-2 flex-shrink-0"></div>
+                        <span>Seamless ERP integration</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <div className="w-2 h-2 rounded-full bg-yellow-600 mt-2 flex-shrink-0"></div>
+                        <span>Automated reporting and analytics</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <div className="w-2 h-2 rounded-full bg-yellow-600 mt-2 flex-shrink-0"></div>
+                        <span>Custom dashboards for different roles</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <div className="w-2 h-2 rounded-full bg-yellow-600 mt-2 flex-shrink-0"></div>
+                        <span>Mobile access for shop floor and management</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </Panel>
             </motion.div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <StatCard
-                number="25%"
-                label="Efficiency Gain"
-                description="Average improvement in overall equipment effectiveness⁴"
-              />
-              <StatCard
-                number="40%"
-                label="Downtime Reduction"
-                description="Decrease in unplanned maintenance and failures⁵"
-              />
-              <StatCard
-                number="30%"
-                label="Cost Savings"
-                description="Reduction in operational and maintenance costs⁶"
-              />
-              <StatCard
-                number="90 Days"
-                label="Time to Value"
-                description="See measurable results in your first pilot project⁷"
-              />
-            </div>
           </section>
 
-          {/* Approach Section */}
-          <section className="py-16">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.8 }}
-              className="text-center mb-16"
-            >
-              <h2 className="text-4xl font-bold mb-6 text-white">Our Phased Approach</h2>
-              <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-                Our methodology ensures continuous operation while building your smart factory.
-              </p>
-            </motion.div>
 
-            <div className="grid md:grid-cols-3 gap-8">
-              <FeatureCard
-                icon={Target}
-                title="Phase 1: Connect"
-                highlight="90-Day Pilot"
-                description="Start with a single production line or cell. Connect equipment, gather data, and demonstrate immediate value with minimal disruption."
-              />
-              <FeatureCard
-                icon={TrendingUp}
-                title="Phase 2: Optimize"
-                highlight="6-Month Expansion"
-                description="Expand to additional lines and systems. Implement AI-driven optimization and predictive maintenance across your operation."
-              />
-              <FeatureCard
-                icon={Lightbulb}
-                title="Phase 3: Transform"
-                highlight="Full Deployment"
-                description="Complete digital transformation with autonomous operations, advanced analytics, and continuous improvement capabilities."
-              />
-            </div>
-          </section>
 
           {/* Mission Section */}
           <section className="py-16">
@@ -337,68 +389,50 @@ export default function LearnMorePage() {
               <div className="space-y-4 text-sm text-gray-400">
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <p className="mb-2">
-                      <span className="text-yellow-600 font-medium">¹</span> McKinsey & Company. (2023).
-                      <a href="https://www.mckinsey.com/industries/advanced-electronics/our-insights/the-factory-of-the-future-how-technology-is-transforming-manufacturing"
+                    <p id="ref1" className="mb-2">
+                      <span className="text-yellow-600 font-medium">¹</span> National Association of Manufacturers. (2025).
+                      <a href="https://nam.org/2025-third-quarter-manufacturers-outlook-survey/"
                          target="_blank" rel="noopener noreferrer"
                          className="text-blue-400 hover:text-blue-300 ml-1 underline">
-                        "Manufacturing's next act: How technology is transforming the factory floor"
+                        "Q3 2025 Manufacturers' Outlook Survey"
                       </a>
                     </p>
 
-                    <p className="mb-2">
-                      <span className="text-yellow-600 font-medium">²</span> Deloitte. (2023).
-                      <a href="https://www2.deloitte.com/us/en/insights/industry/manufacturing/manufacturing-industry-diversity.html"
+                    <p id="ref2" className="mb-2">
+                      <span className="text-yellow-600 font-medium">²</span> Deloitte. (2024).
+                      <a href="https://www.deloitte.com/us/en/insights/industry/manufacturing-industrial-products/manufacturing-industry-outlook.html"
                          target="_blank" rel="noopener noreferrer"
                          className="text-blue-400 hover:text-blue-300 ml-1 underline">
-                        "The future of manufacturing: 2023 manufacturing industry outlook"
+                        "2025 Manufacturing Industry Outlook"
                       </a>
                     </p>
 
-                    <p className="mb-2">
-                      <span className="text-yellow-600 font-medium">³</span> National Association of Manufacturers. (2023).
-                      <a href="https://www.nam.org/state-manufacturing-data/"
+                    <p id="ref3" className="mb-2">
+                      <span className="text-yellow-600 font-medium">³</span> National Association of Manufacturers & Deloitte. (2021).
+                      <a href="https://nam.org/2-1-million-manufacturing-jobs-could-go-unfilled-by-2030-13743/"
                          target="_blank" rel="noopener noreferrer"
                          className="text-blue-400 hover:text-blue-300 ml-1 underline">
-                        "Manufacturing Skills Gap Study"
+                        "2.1 Million Manufacturing Jobs Could Go Unfilled by 2030"
                       </a>
                     </p>
 
-                    <p className="mb-2">
-                      <span className="text-yellow-600 font-medium">⁴</span> PwC Industrial Manufacturing. (2023).
-                      <a href="https://www.pwc.com/us/en/industries/industrial-products/library/digital-factory-transformation.html"
+                    <p id="ref4" className="mb-2">
+                      <span className="text-yellow-600 font-medium">⁴</span> Information Technology and Innovation Foundation. (2024).
+                      <a href="https://itif.org/publications/2024/04/19/accelerating-digital-technology-adoption-among-smes/"
                          target="_blank" rel="noopener noreferrer"
                          className="text-blue-400 hover:text-blue-300 ml-1 underline">
-                        "Digital Factory Transformation: Industry 4.0 Impact Study"
+                        "Accelerating Digital Technology Adoption Among SMEs"
                       </a>
                     </p>
                   </div>
 
                   <div>
                     <p className="mb-2">
-                      <span className="text-yellow-600 font-medium">⁵</span> Aberdeen Group. (2023).
-                      <a href="https://www.aberdeen.com/manufacturing-operations-management/"
+                      <span className="text-yellow-600 font-medium">⁵</span> McKinsey & Company. (2022).
+                      <a href="https://www.mckinsey.com/capabilities/operations/our-insights/capturing-the-true-value-of-industry-four-point-zero"
                          target="_blank" rel="noopener noreferrer"
                          className="text-blue-400 hover:text-blue-300 ml-1 underline">
-                        "Predictive Maintenance: Reducing Unplanned Downtime"
-                      </a>
-                    </p>
-
-                    <p className="mb-2">
-                      <span className="text-yellow-600 font-medium">⁶</span> Boston Consulting Group. (2023).
-                      <a href="https://www.bcg.com/industries/industrial-goods/manufacturing"
-                         target="_blank" rel="noopener noreferrer"
-                         className="text-blue-400 hover:text-blue-300 ml-1 underline">
-                        "Smart Manufacturing: The Future of Production"
-                      </a>
-                    </p>
-
-                    <p className="mb-2">
-                      <span className="text-yellow-600 font-medium">⁷</span> Accenture Strategy. (2023).
-                      <a href="https://www.accenture.com/us-en/insights/industry-x-0/future-manufacturing"
-                         target="_blank" rel="noopener noreferrer"
-                         className="text-blue-400 hover:text-blue-300 ml-1 underline">
-                        "Digital Manufacturing Transformation: Time to Value Analysis"
+                        "Industry 4.0: Digital transformation in manufacturing"
                       </a>
                     </p>
                   </div>
@@ -432,7 +466,7 @@ export default function LearnMorePage() {
                     </div>
                     <div>
                       <p className="mb-2">
-                        <a href="https://www.manufacturinginstitute.org/"
+                        <a href="https://www.themanufacturinginstitute.org/"
                            target="_blank" rel="noopener noreferrer"
                            className="text-blue-400 hover:text-blue-300 underline">
                           The Manufacturing Institute

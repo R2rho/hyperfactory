@@ -36,7 +36,7 @@ export function Hero() {
         </p>
 
         <div className="flex items-center justify-center gap-4 mt-14">
-          <Link className="contents max-sm:hidden" href="/learn-more">
+          <Link className="contents max-sm:hidden" href="/learnmore">
             <Button variant="outline" onMouseEnter={() => setHovering(true)} onMouseLeave={() => setHovering(false)}>
               [Learn More]
             </Button>
@@ -54,7 +54,7 @@ export function Hero() {
           </Button>
 
           {/* Mobile buttons */}
-          <Link className="contents sm:hidden" href="/learn-more">
+          <Link className="contents sm:hidden" href="/learnmore">
             <Button
               size="sm"
               variant="outline"
